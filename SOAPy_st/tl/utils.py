@@ -322,5 +322,4 @@ def allocation_edge_2_diff_cell_type(edges, k_max=10000, error=0.001):
             else:
                 matrix[residue_index, i] = matrix[i, residue_index] = \
                     residue_edge * matrix[i, residue_index] / (edges[residue_index] - residue_edge)
-
     return matrix

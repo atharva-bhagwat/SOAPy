@@ -359,7 +359,7 @@ def _heatmap_with_dendrogram_and_bar(
         bottom_hist.spines['left'].set_visible(False)
         bottom_hist.set_xlabel(x_label)
     else:
-        ax_heatmap.set_xticks(np.arange(len_x), new_xtick)
+        ax_heatmap.set_xticks(np.arange(len_x)+0.5, new_xtick, rotation=90, ha='center')
 
     if y_bar:
         ax_heatmap.set_yticks([])

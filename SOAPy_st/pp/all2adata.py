@@ -307,11 +307,22 @@ def read_dsp2adata(
 
     return adata
 
+# based rpy2
+# Python library preparation
+from typing import List
+from os import PathLike
+
+# R console preparation
+from rpy2.robjects import r
+import rpy2.robjects as robjects
+from rpy2.robjects.packages import importr
+from rpy2.robjects import pandas2ri
+
 
 # function to transform 10X Visium data
 def st_Seurat2Anndata(
         seurat_file: PathLike,
-        exp_mat_slot: list = ['RNA', 'counts'],
+        exp_mat_slot: List = ['RNA', 'counts'],
         res_type: str = 'lowres',
 ) -> anndata.AnnData:
     """
@@ -330,16 +341,6 @@ def st_Seurat2Anndata(
         anndata.Anndata object
 
     """
-    # based rpy2
-    # Python library preparation
-    from typing import List
-    from os import PathLike
-
-    # R console preparation
-    from rpy2.robjects import r
-    import rpy2.robjects as robjects
-    from rpy2.robjects.packages import importr
-    from rpy2.robjects import pandas2ri
 
     # assert r_home!=None 'R Console is not assigned'
 
@@ -559,5 +560,70 @@ def st_Seurat2Anndata(
     return adata
 
 
-if __name__ == '__main__':
-    pass
+# function to transform scRNA-Seq data
+def sc_Seurat2Anndata(
+        seurat_file,
+        exp_mat_slot=['RNA', 'counts']
+):
+    # assert r_home!=None 'R Console is not assigned'
+
+    # Automatically transfer R-data.frame to Python-DataFrame
+    pandas2ri.activate()
+
+    # R fucntion preparation
+    readRDS = robjects.r['readRDS']
+    to_array = robjects.r['as.array']
+    to_data_frame = robjects.r['as.data.frame']
+    transpose = robjects.r['t']
+
+    # required R package loading
+
+    Seurat = importr('Seurat')
+    SeuratObject = importr('SeuratObject')
+
+    # get simple data as single cell
+    GetMetaData = r("""
+    function(seurat_obj){
+    library(Seurat)
+    metadata=seurat_obj@meta.data
+    return(metadata)
+    }
+    """)
+
+    GetMetaFeature = r("""
+    function(seurat_obj,assay='RNA'){
+    library(Seurat)
+    library(dplyr)
+    gene_feature=GetAssay(seurat_obj,assay=assay)@meta.features
+    gene_feature$'genome'=1
+    return(gene_feature)
+    }
+    """)
+
+    GetAssayData = r("""
+    function(seurat_obj,assay,slot){
+    library(Seurat)
+    exp_mat=GetAssayData(seurat_obj,assay=assay,slot=slot)
+    return(exp_mat %>% as.data.frame())
+    }
+    """)
+
+    seurat_obj = readRDS(seurat_file)
+
+    # raw count matrix
+    assay = exp_mat_slot[0]
+    slot = exp_mat_slot[1]
+    count_mat = SeuratObject.GetAssayData(seurat_obj, assay=assay, slot=slot)
+    count_mat = to_array(count_mat)
+    count_mat = count_mat.transpose()
+
+    # get gene names
+    metafeature = GetMetaFeature(seurat_obj, assay)
+
+    # metadata
+    metadata = GetMetaData(seurat_obj)
+
+    # create anndata
+    adata = anndata.AnnData(X=count_mat, var=metafeature, obs=metadata)
+
+    return adata

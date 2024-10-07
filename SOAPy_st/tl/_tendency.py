@@ -297,10 +297,7 @@ class SpatialTendency(object):
                 if self.adata.obs.loc[index, 'in_mask'] is None:
                     self.adata.obs.loc[index, 'in_mask'] = marker
                 else:
-                    if marker < 0:
-                        self.adata.obs.loc[index, 'in_mask'] = marker
-                    else:
-                        self.adata.obs.loc[index, 'in_mask'] = np.min((self.adata.obs.loc[index, 'in_mask'], marker))
+                    self.adata.obs.loc[index, 'in_mask'] = np.min(abs(self.adata.obs.loc[index, 'in_mask']), abs(marker))
 
         if radius is None:
             radius = np.inf

@@ -247,6 +247,7 @@ def _show_factor(factor: np.ndarray,
     sns.clustermap(tensor_df, col_cluster=False, **kwargs)
     plt.xticks(rotation=45)
     plt.suptitle(factor_name)
+    plt.tight_layout()
     plt.show()
 
 
@@ -299,7 +300,3 @@ def _show_proportion(factor: np.ndarray,
     sns.barplot(x=x, y=y, ax=ax, **kwargs)
     ax.set_xticklabels(x, rotation=20, fontsize=10)
     ax.set_title(factor_name)
-
-
-if __name__ == '__main__':
-    pass

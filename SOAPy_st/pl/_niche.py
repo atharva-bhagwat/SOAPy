@@ -194,8 +194,8 @@ def show_celltype_niche_heatmap(
 
     data = _get_info_from_sample(adata=adata, sample_id=None, key='niche')
     data = data.fillna(0)
-    niche = data.columns[:-3]
-    drop_col = data.columns[-3:]
+    niche = data.columns[:-4]
+    drop_col = data.columns[-4:]
     niche_num = len(np.unique(data['C_niche'].tolist()))
 
     mat_niche = []
@@ -230,7 +230,7 @@ def show_celltype_niche_heatmap(
 )
 
     if save:
-        fig.savefig(save)
+        fig.savefig(save, bbox_inches='tight')
     if show:
         fig.show()
     return fig, axes
@@ -495,7 +495,3 @@ def show_niche_environment(
         plt.show()
     else:
         return ax
-
-
-if __name__ == '__main__':
-    pass

@@ -225,7 +225,7 @@ class mult_sample_niche(object):
 
             i_mult_niche = pd.concat([i_mult_niche, mat_niche])
 
-        i_mult_niche = i_mult_niche.reindex(columns=all_cluster, fill_value=0)
+        # i_mult_niche = i_mult_niche.reindex(columns=all_cluster, fill_value=0)
         self.mult_niche = i_mult_niche
         self.num_niche = dict_num_spots
 
@@ -425,9 +425,9 @@ def get_c_niche(
 
     if sample is not None:
         adata.obs[niche_key] = None
-        adata.obs.loc[np.isin(adata.obs[sample_key], sample), niche_key] = niche_inf['C_niche'].tolist()
+        adata.obs.loc[np.isin(adata.obs[sample_key], sample), niche_key] = niche_inf['C_niche']
     else:
-        adata.obs[niche_key] = niche_inf['C_niche'].tolist()
+        adata.obs[niche_key] = niche_inf['C_niche']
 
     return adata
 
